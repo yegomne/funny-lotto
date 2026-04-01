@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Lotto</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Matter.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+<body>
+    <!-- Background Particles Container -->
+    <div id="particles"></div>
+
+    <div id="app">
+        <!-- 초기화 버튼 -->
+        <button id="reset-btn" class="reset-btn">초기화</button>
+
+        <!-- Main Screen -->
+        <section id="main-screen" class="screen active">
+            <header>
+                <h1 class="logo">ANTIGRAVITY <span>LOTTO</span></h1>
+                <p class="subtitle">무중력 상태에서 행운의 숫자를 뽑아보세요</p>
+            </header>
+            
+            <div class="card-container">
+                <!-- Game 1 -->
+                <div class="game-card" data-target="game-screen-1" style="animation-delay: 0s;">
+                    <div class="card-icon">🔮</div>
+                    <h2>투명 돔 추첨기</h2>
+                    <p>돔 안에서 부유하는 공을 잡아라</p>
+                    <div class="neon-line"></div>
+                </div>
+                
+                <!-- Game 2 -->
+                <div class="game-card" data-target="game-screen-2" style="animation-delay: 0.2s;">
+                    <div class="card-icon">🎯</div>
+                    <h2>회전 과녁판</h2>
+                    <p>우주를 유영하는 타겟을 맞혀라</p>
+                    <div class="neon-line"></div>
+                </div>
+                
+                <!-- Game 3 -->
+                <div class="game-card" data-target="game-screen-3" style="animation-delay: 0.4s;">
+                    <div class="card-icon">🎰</div>
+                    <h2>디지털 스피너</h2>
+                    <p>무한회전 홀로그램 스피너</p>
+                    <div class="neon-line"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Screen 1 -->
+        <section id="game-screen-1" class="screen">
+            <nav>
+                <button class="back-btn">⬅ 메인으로 돌아가기</button>
+            </nav>
+            <div class="game-content">
+                <h2>투명 돔 추첨기</h2>
+                <div id="dome-container" class="dome-container"></div>
+                <button id="draw-btn-1" class="draw-btn">추첨 (Draw)</button>
+            </div>
+        </section>
+
+        <!-- Game Screen 2 -->
+        <section id="game-screen-2" class="screen">
+            <nav>
+                <button class="back-btn">⬅ 메인으로 돌아가기</button>
+            </nav>
+            <div class="game-content">
+                <h2>회전 과녁판</h2>
+                <div class="target-game-container">
+                    <div id="target-wrapper">
+                        <canvas id="target-canvas" width="300" height="300"></canvas>
+                    </div>
+                    <div class="arrow-container">
+                        <div id="arrow" class="arrow"></div>
+                    </div>
+                    <div id="notification-text" class="notification-text">중복! 튕겨냈습니다.<br>다시 쏘세요!</div>
+                </div>
+                <button id="shoot-btn" class="draw-btn">발사 (Shoot)</button>
+            </div>
+        </section>
+
+        <!-- Game Screen 3 -->
+        <section id="game-screen-3" class="screen">
+            <nav>
+                <button class="back-btn">⬅ 메인으로 돌아가기</button>
+            </nav>
+            <div class="game-content">
+                <h2>디지털 스피너</h2>
+                <div class="placeholder-spinner"></div>
+                <p>게임 로직 준비 중...</p>
+            </div>
+        </section>
+
+        <!-- 추첨된 번호 슬롯 -->
+        <div class="number-slots-container">
+            <div class="slot" data-index="0"></div>
+            <div class="slot" data-index="1"></div>
+            <div class="slot" data-index="2"></div>
+            <div class="slot" data-index="3"></div>
+            <div class="slot" data-index="4"></div>
+            <div class="slot" data-index="5"></div>
+        </div>
+    </div>
+    <!-- 줌인 이펙트용 공 가상 요소 -->
+    <div id="zoom-ball" class="zoom-ball" style="display: none;"></div>
+
+    <script src="sound.js"></script>
+    <script src="script.js"></script>
+    <script src="game1.js"></script>
+    <script src="game2.js"></script>
+</body>
+</html>
