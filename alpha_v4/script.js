@@ -55,45 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Custom Confirm Modal Logic
-    const confirmModal = document.getElementById('custom-confirm-modal');
-    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-    const modalCancelBtn = document.getElementById('modal-cancel-btn');
-
-    function showConfirmModal(onConfirm) {
-        if(window.soundManager) window.soundManager.playHover();
-        confirmModal.classList.add('show');
-        
-        const newConfirmBtn = modalConfirmBtn.cloneNode(true);
-        const newCancelBtn = modalCancelBtn.cloneNode(true);
-        modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
-        modalCancelBtn.parentNode.replaceChild(newCancelBtn, modalCancelBtn);
-
-        newConfirmBtn.addEventListener('click', () => {
-            if(window.soundManager) window.soundManager.playClick();
-            confirmModal.classList.remove('show');
-            onConfirm();
-        });
-
-        newCancelBtn.addEventListener('click', () => {
-            if(window.soundManager) window.soundManager.playClick();
-            confirmModal.classList.remove('show');
-        });
-    }
-
     // Add click events to back buttons to return to main
     backButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            if (window.lottoGame && window.lottoGame.isAnyGameRunning && window.lottoGame.isAnyGameRunning()) {
-                showConfirmModal(() => {
-                    window.lottoGame.resetLotto();
-                    if(window.soundManager) window.soundManager.playClick();
-                    switchScreen('main-screen');
-                });
-            } else {
-                if(window.soundManager) window.soundManager.playClick();
-                switchScreen('main-screen');
-            }
+            if(window.soundManager) window.soundManager.playClick();
+            switchScreen('main-screen');
         });
     });
 
@@ -129,6 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return newNum;
     }
 
+    // Function to get color class based on number
+    function getColorClass(num) {
+        if (num <= 10) return 'c-yellow';
+        if (num <= 20) return 'c-blue';
+        if (num <= 30) return 'c-red';
+        if (num <= 40) return 'c-gray';
+        return 'c-green';
+    }
+
     // Function to update the glowing slots visually
     function updateSlots() {
         slots.forEach((slot, index) => {
@@ -136,26 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const num = pickedNumbers[index];
                 slot.textContent = num;
                 
-                // Color mapping
-                let colorClass = '';
-                if(num <= 10) colorClass = 'c-10';
-                else if(num <= 20) colorClass = 'c-20';
-                else if(num <= 30) colorClass = 'c-30';
-                else if(num <= 40) colorClass = 'c-40';
-                else colorClass = 'c-50';
-
-                // remove existing color classes to prevent overlap
-                slot.className = slot.className.replace(/c-\d0/g, '').trim();
-                slot.classList.add(colorClass);
-
+                // 기존 색상 클래스 초기화
+                slot.classList.remove('c-yellow', 'c-blue', 'c-red', 'c-gray', 'c-green');
+                
                 if (!slot.classList.contains('filled')) {
-                    slot.classList.add('filled');
+                    slot.classList.add('filled', getColorClass(num));
                     if(window.soundManager) window.soundManager.playResultDrop();
+                } else {
+                    slot.classList.add(getColorClass(num));
                 }
             } else {
                 slot.textContent = '';
-                slot.className = slot.className.replace(/c-\d0/g, '').trim();
-                slot.classList.remove('filled');
+                slot.classList.remove('filled', 'c-yellow', 'c-blue', 'c-red', 'c-gray', 'c-green');
             }
         });
 
@@ -304,13 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.lottoGame = {
         pickNumber,
         resetLotto,
-        getPickedNumbers: () => [...pickedNumbers],
-        isGame1Running: () => false,
-        isGame2Running: () => false,
-        isGame3Running: () => false,
-        isAnyGameRunning: function() {
-            return this.isGame1Running() || this.isGame2Running() || this.isGame3Running();
-        }
+        getPickedNumbers: () => [...pickedNumbers]
     };
 
     // --- 병합된 Game 1 ---
@@ -677,10 +638,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    if (window.lottoGame) {
-        window.lottoGame.isGame1Running = () => isDrawing || isTornado;
-    }
-
     })();
 
     // --- 병합된 Game 2 ---
@@ -856,7 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 화살은 충돌 0.5초 전에 발사
         // 전체 정지 시간 1500ms, 화살 비행 시간 500ms -> 시작 1000ms 지연
         setTimeout(() => {
-            if (!shootBtn.disabled) return; // cancelled
             arrow.classList.add('shoot');
             if (window.soundManager) window.soundManager.playArrowShoot(); 
         }, 1000);
@@ -875,7 +831,6 @@ document.addEventListener('DOMContentLoaded', () => {
             notif.classList.add('show');
 
             setTimeout(() => {
-                if (!shootBtn.disabled) return; // cancelled
                 document.querySelector('.target-game-container').classList.remove('shake');
                 notif.classList.remove('show');
                 arrow.classList.remove('bounce');
@@ -909,7 +864,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 draw(); // 회색 처리 갱신
 
                 setTimeout(() => {
-                    if (!shootBtn.disabled) return; // cancelled
                     zoomBall.style.display = 'none';
                     arrow.classList.remove('shoot');
                     
@@ -929,24 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 초기화 이벤트 리스너
     window.addEventListener('resetLotto', () => {
-        shootBtn.disabled = false;
-        isSpinning = true;
-        arrow.classList.remove('shoot', 'bounce');
-        notif.classList.remove('show');
-        document.querySelector('.target-game-container').classList.remove('shake');
-        zoomBall.style.display = 'none';
-        zoomBall.classList.remove('animate');
-        
-        cancelAnimationFrame(spinRAF);
-        lastTime = performance.now();
-        spinRAF = requestAnimationFrame(constantSpin);
-        
         draw();
     });
-
-    if (window.lottoGame) {
-        window.lottoGame.isGame2Running = () => shootBtn.disabled === true;
-    }
 
     })();
 
@@ -961,8 +899,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isSlowing = false;
     let speed = 20;
     let rollInterval;
-    let decelerateTimeout;
-    let finishSpinTimeout;
     let currentNumber = 0;
     
     function formatNumber(num) {
@@ -1042,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (decelerateTicks < maxTicks) {
-                decelerateTimeout = setTimeout(decelerateStep, speed);
+                setTimeout(decelerateStep, speed);
             } else {
                 // 최종 번호에 딱 정지
                 digitalNumber.textContent = formatNumber(finalTargetNum);
@@ -1050,7 +986,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        decelerateTimeout = setTimeout(decelerateStep, speed);
+        setTimeout(decelerateStep, speed);
     }
     
     function finishSpin(finalNumber) {
@@ -1075,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetUI();
         
         // 이펙트 초기화용 타이머
-        finishSpinTimeout = setTimeout(() => {
+        setTimeout(() => {
             spinnerContainer.classList.remove('flash');
         }, 800);
     }
@@ -1091,21 +1027,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 글로벌 초기화 이벤트
     window.addEventListener('resetLotto', () => {
-        isRolling = false;
-        isSlowing = false;
-        clearInterval(rollInterval);
-        clearTimeout(decelerateTimeout);
-        clearTimeout(finishSpinTimeout);
-        
         digitalNumber.textContent = '00';
         digitalNumber.classList.remove('rolling', 'slowing', 'pop');
         spinnerContainer.classList.remove('flash');
         resetUI();
     });
-
-    if (window.lottoGame) {
-        window.lottoGame.isGame3Running = () => isRolling || isSlowing;
-    }
 
     spinBtn.addEventListener('click', () => {
         if (!isRolling && !isSlowing) {
