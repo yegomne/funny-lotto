@@ -3,11 +3,9 @@ import sqlite3
 import requests
 import math
 import random
-import tkinter as tk
 import argparse
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from tkinter import messagebox
 
 class PremiumLottoEngine:
     def __init__(self, db_path="lotto_history.db"):
@@ -148,6 +146,7 @@ class PremiumLottoEngine:
 
 class PremiumLottoGUI:
     def __init__(self, root):
+        import tkinter as tk
         self.root = root
         self.root.title("안티그래비티 로또 - 프리미엄 통계 엔진 🚀")
         
@@ -171,6 +170,7 @@ class PremiumLottoGUI:
     def on_premium_click(self):
         # 프리미엄 기능 권한(과금 여부) 체크
         if not self.engine.is_premium_unlocked:
+            from tkinter import messagebox
             messagebox.showwarning("결제 안내", "프리미엄 로직은 결제 후 이용 가능합니다!")
             return
             
@@ -230,6 +230,7 @@ if __name__ == "__main__":
     if args.api:
         run_api()
     else:
+        import tkinter as tk
         root = tk.Tk()
         root.geometry("450x300")
         app = PremiumLottoGUI(root)
