@@ -217,21 +217,41 @@ def run_api(port=8081):
     port = int(os.environ.get("PORT", port))
     engine = PremiumLottoEngine()
     engine.init_database()
-    PremiumAPIHandler.engine = engine
-    server = HTTPServer(('0.0.0.0', port), PremiumAPIHandler)
-    print(f"🚀 Premium Lotto API Server is running on http://0.0.0.0:{port} ...")
-    server.serve_forever()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--api', action='store_true', help='Run as API server')
-    args, unknown = parser.parse_known_args()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="안티그래비티 로또 - 프리미엄 통계 엔진")
+    parser.add_argument('--gui', action='store_true', help="Tkinter GUI 모드로 실행합니다.")
+    parser.add_argument('--api', action='store_true', help="API 서버 모드로 실행합니다. (배포용)")
+    parser.add_argument('--port', type=int, default=10000, help="API 서버 포트 (기본값: 10000)")
     
-    if args.api:
-        run_api()
-    else:
+    args = parser.parse_args()
+    
+    if args.gui:
         import tkinter as tk
         root = tk.Tk()
-        root.geometry("450x300")
         app = PremiumLottoGUI(root)
         root.mainloop()
+    elif args.api:
+        engine = PremiumLottoEngine()
+        engine.init_database()
+        PremiumAPIHandler.engine = engine
+        
+        server_address = ('', args.port)
+        httpd = HTTPServer(server_address, PremiumAPIHandler)
+        print(f"🚀 안티그래비티 로또 프리미엄 API 서버 가동 완료 (Port: {args.port})")
+        
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\n서버를 종료합니다.")
+            httpd.server_close()
+    else:
+        print("💡 사용법: 파이썬 스크립트 실행 시 옵션을 입력해주세요!")
+        print("  GUI 모드 실행: python premium_lotto.py --gui")
+        print("  API 서버 실행: python premium_lotto.py --api")
+        print("  도움말 보기: python premium_lotto.py --help")
+        
+        # 내부 로직 테스트 용도로 엔진만 가볍게 돌려보는 코드
+        print("\n[DB 동기화 테스트 진행 중...]")
+        engine = PremiumLottoEngine()
+        engine.init_database()
+        print("테스트 완료.")
