@@ -222,13 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
     const copyBtn = document.getElementById('copy-btn');
 
-    function getNextPremiumNumber() {
-        if (isPremiumMode && premiumNumbers && premiumNumbers.length > pickedNumbers.length) {
-            return premiumNumbers[pickedNumbers.length];
-        }
-        return null;
-    }
-
     // Function to pick a new number without duplicates
     function pickNumber(forcedNumber = null) {
         if (pickedNumbers.length >= maxNumbers) {
@@ -432,7 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 전역에서 게임 스크립트들이 접근할 수 있도록 노출
     window.lottoGame = {
         pickNumber,
-        getNextPremiumNumber,
         resetLotto,
         getPickedNumbers: () => [...pickedNumbers],
         isGame1Running: () => false,
@@ -696,9 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isTornado = false;
         
         // Record result
-        const premiumNum = window.lottoGame.getNextPremiumNumber();
-        const finalNumber = premiumNum !== null ? premiumNum : ball.number;
-        const pickRes = window.lottoGame.pickNumber(finalNumber);
+        const pickRes = window.lottoGame.pickNumber(ball.number);
         if(!pickRes) {
             // Unexpected, but safely handle if it fails
         }
@@ -724,12 +714,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Trigger CSS Zoom animation
-        zoomBall.textContent = finalNumber;
-        zoomBall.style.backgroundColor = getBallColor(finalNumber);
+        zoomBall.textContent = ball.number;
+        zoomBall.style.backgroundColor = getBallColor(ball.number);
         zoomBall.style.display = 'flex';
         zoomBall.classList.add('animate');
         
-        window.createBurstParticles(zoomBall, getBallColor(finalNumber));
+        window.createBurstParticles(zoomBall, getBallColor(ball.number));
         
         setTimeout(() => {
             zoomBall.classList.remove('animate');
@@ -784,12 +774,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 원활하게 구멍으로 추락(톡 삐져나옴)하도록 강제 배출력 적용
             if (lowestBall) {
-                // 프리미엄 모드일 경우 추락 직전에 물리 공의 표기 숫자를 프리미엄 번호로 바꿔치기
-                const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-                if (premiumNum !== null) {
-                    lowestBall.number = premiumNum;
-                }
-                
                 Body.setVelocity(lowestBall, { x: 0, y: 15 });
                 
                 // 다른 공들은 구멍 길을 터주기 위해 살짝 흩트림
@@ -811,10 +795,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 balls.forEach(b => {
                      if(!b.isDrawn && b.position.y > (cy + 20) && Math.abs(b.position.x - cx) < 30) {
-                         const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-                         if (premiumNum !== null) {
-                             b.number = premiumNum;
-                         }
                          Body.setVelocity(b, { x: 0, y: 10 }); // 구멍 쪽으로 내리꽂음
                      }
                 });
@@ -1032,21 +1012,15 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelAnimationFrame(spinRAF);
 
         // 결과 결정
-        const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-        if (premiumNum !== null) {
-            hitNumber = premiumNum;
-            isDuplicate = false;
-        } else {
-            hitNumber = Math.floor(Math.random() * 45) + 1;
-            isDuplicate = window.lottoGame ? window.lottoGame.getPickedNumbers().includes(hitNumber) : false;
-        }
+        hitNumber = Math.floor(Math.random() * 45) + 1;
+        isDuplicate = window.lottoGame ? window.lottoGame.getPickedNumbers().includes(hitNumber) : false;
 
         // 목표 각도 계산
-        // 0번 조각의 바닥(6시)은 회전 0도일때 옴. 
-        // 화면의 화살표는 12시(상단)에 있으므로, 바닥(6시)에 있는 걸 12시로 올리려면 180도 오프셋이 추가로 필요.
+        // hitNumber 조각이 바닥(6시 방향)에 있으려면 
+        // 0번 조각의 바닥은 회전 0도일때 옴. i번 조각이 바닥에 오려면 360 - i * 8도 회전이 필요
         const sliceIdx = hitNumber - 1;
         const sliceDeg = 360 / 45; // 8도
-        const requiredRotation = (180 - (sliceIdx * sliceDeg) + 360) % 360;
+        const requiredRotation = 360 - (sliceIdx * sliceDeg);
 
         // 부드럽게 감속하기 위해 추가 스핀(약 2바퀴 이상)
         const spins = 360 * 3;
@@ -1248,14 +1222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let decelerateTicks = 0;
         const maxTicks = 20; 
         
-        let finalTargetNum = null;
-        const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-        if (premiumNum !== null) {
-            finalTargetNum = premiumNum;
-        } else {
-            finalTargetNum = getRandomNonDuplicate();
-        }
-
+        const finalTargetNum = getRandomNonDuplicate();
         if (finalTargetNum === null) {
             resetUI();
             return;

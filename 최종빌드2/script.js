@@ -59,57 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100); // 100ms matches the start of the CSS transition loosely
     }
 
-    // Scroll Arrow Logic for Main Screen
-    const cardContainer = document.querySelector('.card-container');
-    const topArrow = document.querySelector('.scroll-arrow.top-arrow');
-    const bottomArrow = document.querySelector('.scroll-arrow.bottom-arrow');
-
-    function updateScrollArrows() {
-        if (!cardContainer || !topArrow || !bottomArrow) return;
-        
-        // Ensure parent is visible to calculate correctly
-        if (cardContainer.offsetParent === null) return;
-        
-        const isOverflowing = cardContainer.scrollHeight > cardContainer.clientHeight;
-        
-        if (isOverflowing) {
-            if (cardContainer.scrollTop > 5) {
-                topArrow.classList.add('visible');
-            } else {
-                topArrow.classList.remove('visible');
-            }
-            
-            if (cardContainer.scrollTop + cardContainer.clientHeight < cardContainer.scrollHeight - 5) {
-                bottomArrow.classList.add('visible');
-            } else {
-                bottomArrow.classList.remove('visible');
-            }
-        } else {
-            topArrow.classList.remove('visible');
-            bottomArrow.classList.remove('visible');
-        }
-    }
-
-    if (cardContainer) {
-        cardContainer.addEventListener('scroll', updateScrollArrows);
-        window.addEventListener('resize', updateScrollArrows);
-        // Initial check after a slight delay to allow rendering/fonts
-        setTimeout(updateScrollArrows, 300);
-        
-        // Also update when switching to main screen
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.target.classList.contains('active') && mutation.target.id === 'main-screen') {
-                    setTimeout(updateScrollArrows, 100);
-                }
-            });
-        });
-        const mainScreen = document.getElementById('main-screen');
-        if (mainScreen) {
-            observer.observe(mainScreen, { attributes: true, attributeFilter: ['class'] });
-        }
-    }
-    
     // Add click events to cards to go to specific games
     gameCards.forEach(card => {
         // hover sound
@@ -165,69 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Custom Premium Toggle Logic
-    const premiumToggle = document.getElementById('premium-toggle');
-    const premiumWrapper = document.getElementById('premium-wrapper');
-    const premiumLabelText = document.getElementById('premium-label-text');
-    const premiumStatus = document.getElementById('premium-status');
-
-    let isPremiumMode = false;
-    let premiumNumbers = [];
-    
-    if (premiumToggle) {
-        premiumToggle.addEventListener('change', async (e) => {
-            if (e.target.checked) {
-                premiumWrapper.classList.add('active');
-                premiumStatus.textContent = 'API 연결 중...';
-                premiumStatus.style.color = '#1dd1a1';
-                if(window.soundManager) window.soundManager.playClick();
-                
-                try {
-                    const res = await fetch('http://127.0.0.1:8081/api/premium');
-                    if (!res.ok) throw new Error('API 오류');
-                    const data = await res.json();
-                    
-                    if (data.numbers && data.numbers.length === 6) {
-                        isPremiumMode = true;
-                        premiumNumbers = data.numbers;
-                        premiumStatus.textContent = '연결 완료! VIP 번호 대기중';
-                        if(window.soundManager && window.soundManager.playResultDrop) window.soundManager.playResultDrop();
-                    } else {
-                        throw new Error('유효하지 않은 데이터');
-                    }
-                } catch (err) {
-                    console.error('프리미엄 API 연결 실패:', err);
-                    isPremiumMode = false;
-                    premiumToggle.checked = false;
-                    premiumWrapper.classList.remove('active');
-                    premiumLabelText.style.color = '';
-                    premiumStatus.textContent = '연결 실패! (API 서버를 실행해주세요)';
-                    premiumStatus.style.color = '#ff4757';
-                    if(window.soundManager && window.soundManager.playTargetBounce) window.soundManager.playTargetBounce();
-                }
-            } else {
-                isPremiumMode = false;
-                premiumNumbers = [];
-                premiumWrapper.classList.remove('active');
-                premiumStatus.textContent = '';
-                if(window.soundManager) window.soundManager.playClick();
-            }
-        });
-    }
-
     // 3. Lotto Number Generation Logic
     let pickedNumbers = [];
     const maxNumbers = 6;
     const slots = document.querySelectorAll('.slot');
     const resetBtn = document.getElementById('reset-btn');
     const copyBtn = document.getElementById('copy-btn');
-
-    function getNextPremiumNumber() {
-        if (isPremiumMode && premiumNumbers && premiumNumbers.length > pickedNumbers.length) {
-            return premiumNumbers[pickedNumbers.length];
-        }
-        return null;
-    }
 
     // Function to pick a new number without duplicates
     function pickNumber(forcedNumber = null) {
@@ -237,11 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let newNum;
-        
-        // 꼼수: 프리미엄 모드가 켜져 있다면 모든 추출 방식을 무시하고 프리미엄 번호를 강제 배정합니다!
-        if (isPremiumMode && premiumNumbers.length > pickedNumbers.length) {
-            newNum = premiumNumbers[pickedNumbers.length];
-        } else if (forcedNumber !== null) {
+        if (forcedNumber !== null) {
             if (pickedNumbers.includes(forcedNumber)) {
                 console.warn('이미 뽑힌 번호입니다:', forcedNumber);
                 return null;
@@ -432,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 전역에서 게임 스크립트들이 접근할 수 있도록 노출
     window.lottoGame = {
         pickNumber,
-        getNextPremiumNumber,
         resetLotto,
         getPickedNumbers: () => [...pickedNumbers],
         isGame1Running: () => false,
@@ -696,9 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isTornado = false;
         
         // Record result
-        const premiumNum = window.lottoGame.getNextPremiumNumber();
-        const finalNumber = premiumNum !== null ? premiumNum : ball.number;
-        const pickRes = window.lottoGame.pickNumber(finalNumber);
+        const pickRes = window.lottoGame.pickNumber(ball.number);
         if(!pickRes) {
             // Unexpected, but safely handle if it fails
         }
@@ -724,12 +609,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Trigger CSS Zoom animation
-        zoomBall.textContent = finalNumber;
-        zoomBall.style.backgroundColor = getBallColor(finalNumber);
+        zoomBall.textContent = ball.number;
+        zoomBall.style.backgroundColor = getBallColor(ball.number);
         zoomBall.style.display = 'flex';
         zoomBall.classList.add('animate');
         
-        window.createBurstParticles(zoomBall, getBallColor(finalNumber));
+        window.createBurstParticles(zoomBall, getBallColor(ball.number));
         
         setTimeout(() => {
             zoomBall.classList.remove('animate');
@@ -784,12 +669,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 원활하게 구멍으로 추락(톡 삐져나옴)하도록 강제 배출력 적용
             if (lowestBall) {
-                // 프리미엄 모드일 경우 추락 직전에 물리 공의 표기 숫자를 프리미엄 번호로 바꿔치기
-                const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-                if (premiumNum !== null) {
-                    lowestBall.number = premiumNum;
-                }
-                
                 Body.setVelocity(lowestBall, { x: 0, y: 15 });
                 
                 // 다른 공들은 구멍 길을 터주기 위해 살짝 흩트림
@@ -811,10 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 balls.forEach(b => {
                      if(!b.isDrawn && b.position.y > (cy + 20) && Math.abs(b.position.x - cx) < 30) {
-                         const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-                         if (premiumNum !== null) {
-                             b.number = premiumNum;
-                         }
                          Body.setVelocity(b, { x: 0, y: 10 }); // 구멍 쪽으로 내리꽂음
                      }
                 });
@@ -1032,21 +907,15 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelAnimationFrame(spinRAF);
 
         // 결과 결정
-        const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-        if (premiumNum !== null) {
-            hitNumber = premiumNum;
-            isDuplicate = false;
-        } else {
-            hitNumber = Math.floor(Math.random() * 45) + 1;
-            isDuplicate = window.lottoGame ? window.lottoGame.getPickedNumbers().includes(hitNumber) : false;
-        }
+        hitNumber = Math.floor(Math.random() * 45) + 1;
+        isDuplicate = window.lottoGame ? window.lottoGame.getPickedNumbers().includes(hitNumber) : false;
 
         // 목표 각도 계산
-        // 0번 조각의 바닥(6시)은 회전 0도일때 옴. 
-        // 화면의 화살표는 12시(상단)에 있으므로, 바닥(6시)에 있는 걸 12시로 올리려면 180도 오프셋이 추가로 필요.
+        // hitNumber 조각이 바닥(6시 방향)에 있으려면 
+        // 0번 조각의 바닥은 회전 0도일때 옴. i번 조각이 바닥에 오려면 360 - i * 8도 회전이 필요
         const sliceIdx = hitNumber - 1;
         const sliceDeg = 360 / 45; // 8도
-        const requiredRotation = (180 - (sliceIdx * sliceDeg) + 360) % 360;
+        const requiredRotation = 360 - (sliceIdx * sliceDeg);
 
         // 부드럽게 감속하기 위해 추가 스핀(약 2바퀴 이상)
         const spins = 360 * 3;
@@ -1248,14 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let decelerateTicks = 0;
         const maxTicks = 20; 
         
-        let finalTargetNum = null;
-        const premiumNum = window.lottoGame ? window.lottoGame.getNextPremiumNumber() : null;
-        if (premiumNum !== null) {
-            finalTargetNum = premiumNum;
-        } else {
-            finalTargetNum = getRandomNonDuplicate();
-        }
-
+        const finalTargetNum = getRandomNonDuplicate();
         if (finalTargetNum === null) {
             resetUI();
             return;
