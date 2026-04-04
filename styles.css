@@ -268,6 +268,10 @@ body {
     z-index: 10;
 }
 
+.screen.active:has(.tooltip-wrapper:hover) {
+    z-index: 9999;
+}
+
 /* Main Screen Layout */
 header {
     text-align: center;
