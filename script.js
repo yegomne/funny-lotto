@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(window.soundManager) window.soundManager.playClick();
                 
                 try {
-                    const res = await fetch('http://127.0.0.1:8081/api/premium');
+                    const res = await fetch('https://funny-lotto.onrender.com/api/premium');
                     if (!res.ok) throw new Error('API 오류');
                     const data = await res.json();
                     
