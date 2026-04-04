@@ -1341,9 +1341,10 @@ input:checked + .premium-slider:before {
     visibility: hidden;
     opacity: 0;
     position: absolute;
-    top: 150%;
+    bottom: 150%;
+    top: auto;
     left: 50%;
-    transform: translateX(-50%) translateY(-10px);
+    transform: translateX(-50%) translateY(10px);
     width: 280px;
     background: rgba(10, 10, 25, 0.95);
     border: 1px solid var(--neon-blue);
@@ -1363,12 +1364,13 @@ input:checked + .premium-slider:before {
 .tooltip-content::after {
     content: '';
     position: absolute;
-    bottom: 100%;
+    top: 100%;
+    bottom: auto;
     left: 50%;
     transform: translateX(-50%);
     border-width: 8px;
     border-style: solid;
-    border-color: transparent transparent var(--neon-blue) transparent;
+    border-color: var(--neon-blue) transparent transparent transparent;
 }
 
 .tooltip-wrapper:hover .tooltip-content {
