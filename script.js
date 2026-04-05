@@ -1392,4 +1392,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     })();
+
+    // --- Easter Egg Logic ---
+    let clickCount = 0;
+    let clickTimer = null;
+    const easterEggOverlay = document.getElementById('easter-egg');
+
+    document.addEventListener('click', () => {
+        clickCount++;
+
+        if (clickCount >= 5) {
+            // Show Easter Egg
+            easterEggOverlay.classList.add('show');
+            SoundManager.play('jackpot'); // Using jackpot sound for fun
+            
+            setTimeout(() => {
+                easterEggOverlay.classList.remove('show');
+            }, 5000);
+
+            clickCount = 0; // Reset
+        }
+
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+            clickCount = 0;
+        }, 500); // 500ms 안에 연속 클릭해야 함
+    });
+
 });
