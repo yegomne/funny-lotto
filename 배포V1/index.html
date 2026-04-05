@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funny Lotto</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Matter.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <!-- canvas-confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <!-- Background Particles Container -->
+    <div id="particles"></div>
+
+    <div id="app">
+        <!-- 모서리쪽 버튼 컨테이너 -->
+        <div class="top-right-controls">
+            <!-- 초기화 버튼 -->
+            <button id="reset-btn" class="reset-btn">초기화</button>
+            <button id="auto-btn-1" class="global-auto-btn">자동 (Auto)</button>
+            <button id="auto-btn-2" class="global-auto-btn">자동 (Auto)</button>
+            <button id="auto-btn-3" class="global-auto-btn">자동 (Auto)</button>
+        </div>
+
+        <!-- Main Screen -->
+        <section id="main-screen" class="screen active">
+            <header class="main-header">
+                <div class="logo-wrapper">
+                    <h1 class="logo">Funny <span>LOTTO</span></h1>
+                    <div class="premium-toggle-wrapper" id="premium-wrapper">
+                        <label class="premium-switch">
+                            <input type="checkbox" id="premium-toggle">
+                            <span class="premium-slider"></span>
+                        </label>
+                        <div style="display: flex; align-items: center; justify-content: center;">
+                            <span class="premium-label" id="premium-label-text">프리미엄 통계 엔진</span>
+                            <div class="tooltip-wrapper">
+                                <span class="info-icon">💡</span>
+                                <div class="tooltip-content">
+                                    <h4>🚀 확률 기반 통계 분석</h4>
+                                    <p>매주 <strong>최신 당첨 결과가 자동 업데이트</strong> 됩니다.<br>누적된 빅데이터를 <strong>벤포드 법칙 & 이격도 통계</strong>로 분석하여 번호를 추천합니다.<br><span style="font-size: 0.75rem; color: #ffeb3b; display: block; margin-top: 5px;">*본 서비스는 통계적 수치를 제공하며 당첨을 보장하지 않습니다.</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="premium-status" class="premium-status"></div>
+                    </div>
+                </div>
+                <p class="subtitle">무중력 상태에서 행운의 숫자를 뽑아보세요</p>
+            </header>
+            
+            <div class="scroll-arrow top-arrow">▲</div>
+            <div class="card-container">
+                <!-- Game 1 -->
+                <div class="game-card" data-target="game-screen-1" style="animation-delay: 0s;">
+                    <div class="card-icon">🔮</div>
+                    <h2>투명 돔 추첨기</h2>
+                    <p>돔 안에서 부유하는 공을 잡아라</p>
+                    <div class="neon-line"></div>
+                </div>
+                
+                <!-- Game 2 -->
+                <div class="game-card" data-target="game-screen-2" style="animation-delay: 0.2s;">
+                    <div class="card-icon">🎯</div>
+                    <h2>회전 과녁판</h2>
+                    <p>우주를 유영하는 타겟을 맞혀라</p>
+                    <div class="neon-line"></div>
+                </div>
+                
+                <!-- Game 3 -->
+                <div class="game-card" data-target="game-screen-3" style="animation-delay: 0.4s;">
+                    <div class="card-icon">🎰</div>
+                    <h2>디지털 스피너</h2>
+                    <p>무한회전 홀로그램 스피너</p>
+                    <div class="neon-line"></div>
+                </div>
+            </div>
+            <div class="scroll-arrow bottom-arrow">▼</div>
+        </section>
+
+        <!-- Game Screen 1 -->
+        <section id="game-screen-1" class="screen">
+            <nav>
+                <button class="back-btn">⬅ 메인으로 돌아가기</button>
+            </nav>
+            <div class="game-content">
+                <h2>투명 돔 추첨기</h2>
+                <div id="dome-container" class="dome-container"></div>
+                    <button id="draw-btn-1" class="draw-btn">추첨 (Draw)</button>
+            </div>
+        </section>
+
+        <!-- Game Screen 2 -->
+        <section id="game-screen-2" class="screen">
+            <nav>
+                <button class="back-btn">⬅ 메인으로 돌아가기</button>
+            </nav>
+            <div class="game-content">
+                <h2>회전 과녁판</h2>
+                <div class="target-game-container">
+                    <div id="target-wrapper">
+                        <canvas id="target-canvas" width="300" height="300"></canvas>
+                    </div>
+                    <div class="arrow-container">
+                        <div id="arrow" class="arrow"></div>
+                    </div>
+                    <div id="notification-text" class="notification-text">중복! 튕겨냈습니다.<br>다시 쏘세요!</div>
+                </div>
+                    <button id="shoot-btn" class="draw-btn">발사 (Shoot)</button>
+            </div>
+        </section>
+
+        <!-- Game Screen 3 -->
+        <section id="game-screen-3" class="screen">
+            <nav>
+                <button class="back-btn">⬅ 메인으로 돌아가기</button>
+            </nav>
+            <div class="game-content">
+                <h2>디지털 스피너</h2>
+                <div class="spinner-game-container">
+                    <div id="digital-number" class="digital-number">00</div>
+                </div>
+                    <button id="spin-btn" class="draw-btn">시작 (Start)</button>
+            </div>
+        </section>
+
+        <!-- 추첨된 번호 슬롯 -->
+        <div class="number-slots-container">
+            <div class="slot" data-index="0"></div>
+            <div class="slot" data-index="1"></div>
+            <div class="slot" data-index="2"></div>
+            <div class="slot" data-index="3"></div>
+            <div class="slot" data-index="4"></div>
+            <div class="slot" data-index="5"></div>
+            <button id="copy-btn" class="copy-btn" style="display: none;">번호 복사 📋</button>
+        </div>
+        
+        <!-- Jackpot 피날레 오버레이 -->
+        <div id="jackpot-overlay" class="jackpot-overlay" style="display: none;">
+            <h1 class="jackpot-text">JACKPOT!</h1>
+        </div>
+
+        <!-- Custom Confirm Modal -->
+        <div id="custom-confirm-modal" class="custom-modal-overlay">
+            <div class="custom-modal">
+                <p>진행중인 게임이 있습니다.<br>초기화 하시겠습니까?</p>
+                <div class="modal-buttons">
+                    <button id="modal-confirm-btn" class="modal-btn confirm">확인</button>
+                    <button id="modal-cancel-btn" class="modal-btn cancel">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 줌인 이펙트용 공 가상 요소 -->
+    <div id="zoom-ball" class="zoom-ball" style="display: none;"></div>
+
+    <script src="sound.js"></script>
+    <script src="script.js"></script>
+    </body>
+</html>

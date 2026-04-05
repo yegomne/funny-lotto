@@ -1419,4 +1419,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500); // 500ms 안에 연속 클릭해야 함
     });
 
+    // ==========================================
+    // Policy Modal Logic
+    // ==========================================
+    const policyLinks = document.querySelectorAll('.policy-link');
+    const policyOverlay = document.getElementById('policy-modal-overlay');
+    const policyCloseBtn = document.querySelector('.policy-close-btn');
+    const policyTitle = document.getElementById('policy-title');
+    const policyContent = document.getElementById('policy-content');
+
+    const policies = {
+        terms: {
+            title: '이용약관',
+            content: `
+                <h3>제1조 (목적)</h3>
+                <p>본 약관은 Funny LOTTO(이하 "서비스")가 제공하는 로또 번호 생성 및 확률 분석 서비스의 이용과 관련하여, 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+                <h3>제2조 (서비스의 성격)</h3>
+                <p>본 서비스에서 제공하는 모든 통계 데이터, 번호 및 분석 결과는 참고용이며, 실제 로또 당첨을 보장하지 않습니다. 사용자는 본 서비스를 오락 및 재미 목적으로만 사용하여야 합니다.</p>
+                <h3>제3조 (책임의 한계)</h3>
+                <p>서비스 이용으로 인해 발생한 금전적 손실이나 기타 모든 직간접적 피해에 대해 당사는 어떠한 법적 책임도 지지 않습니다.</p>
+            `
+        },
+        privacy: {
+            title: '개인정보처리방침',
+            content: `
+                <h3>제1조 (개인정보의 수집)</h3>
+                <p>Funny LOTTO는 오락용 시뮬레이션 서비스로, 사용자의 서비스 이용 기록 및 프리미엄 통계 엔진 활성화 여부만 브라우저의 로컬 스토리지에 저장합니다. 민감한 개인정보(이름, 연락처 등)는 수집하지 않습니다.</p>
+                <h3>제2조 (개인정보의 이용 목적)</h3>
+                <p>수집된 최소한의 데이터는 서비스 품질 향상 및 에러 분석을 위해서만 사용됩니다.</p>
+                <h3>제3조 (동의 및 철회)</h3>
+                <p>사용자는 브라우저의 로컬 스토리지 또는 쿠키를 삭제함으로써 언제든지 정보 제공 동의를 철회할 수 있습니다.</p>
+            `
+        },
+        disclaimer: {
+            title: '법적 고지',
+            content: `
+                <h3>면책 조항 (Disclaimer)</h3>
+                <p>본 사이트(Funny LOTTO)는 로또 당첨을 보장하지 않으며, 사이트 내 모든 기능과 데이터는 흥미와 통계적 호기심을 충족시키기 위한 용도로 제작되었습니다.</p>
+                <ul>
+                    <li>당사는 제공되는 정보의 정확성이나 신뢰성에 대해 명시적이 거나 묵시적인 어떠한 보증도 하지 않습니다.</li>
+                    <li>모든 투자의 책임은 사용자 본인에게 있으며, 과도한 복권 구매는 재정적 문제를 일으킬 수 있습니다.</li>
+                    <li>건전한 레저 문화로서 복권을 즐기시길 권장합니다.</li>
+                </ul>
+            `
+        }
+    };
+
+    policyLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const policyType = link.getAttribute('data-policy');
+            if (policies[policyType]) {
+                policyTitle.innerHTML = policies[policyType].title;
+                policyContent.innerHTML = policies[policyType].content;
+                policyOverlay.classList.add('active');
+                SoundManager.play('click');
+            }
+        });
+    });
+
+    if (policyCloseBtn) {
+        policyCloseBtn.addEventListener('click', () => {
+            policyOverlay.classList.remove('active');
+            SoundManager.play('click');
+        });
+    }
+
+    if (policyOverlay) {
+        policyOverlay.addEventListener('click', (e) => {
+            if (e.target === policyOverlay) {
+                policyOverlay.classList.remove('active');
+                SoundManager.play('click');
+            }
+        });
+    }
+
 });
