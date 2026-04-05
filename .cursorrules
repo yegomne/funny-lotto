@@ -1,0 +1,14 @@
+# Vercel Deployment Rules
+
+**CRITICAL RULE FOR ALL AI AGENTS:**
+
+1. **DO NOT** try to manually deploy this project using `npx vercel` or `vercel --prod` locally.
+2. This repository is **already linked to Vercel via GitHub integration**, and the domain (`funny-lotto.yegomne.com`) is already set up and connected.
+3. Whenever the user requests to deploy changes or make it live on the web, you **MUST ONLY push to GitHub**.
+4. The procedure for deploying is:
+   ```bash
+   git add .
+   git commit -m "chore: update"
+   git push origin main
+   ```
+5. Vercel will automatically pick up the push and deploy it to production. Do not attempt any interactive CLI logins or project initializations.
