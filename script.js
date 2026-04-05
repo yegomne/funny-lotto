@@ -1422,76 +1422,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // Policy Modal Logic
     // ==========================================
-    const policyLinks = document.querySelectorAll('.policy-link');
-    const policyOverlay = document.getElementById('policy-modal-overlay');
-    const policyCloseBtn = document.querySelector('.policy-close-btn');
-    const policyTitle = document.getElementById('policy-title');
-    const policyContent = document.getElementById('policy-content');
+    const linkTerms = document.getElementById('link-terms');
+    const linkPrivacy = document.getElementById('link-privacy');
+    const linkRefund = document.getElementById('link-refund');
+    
+    const policyModal = document.getElementById('policy-modal');
+    const policyCloseBtn = document.getElementById('modal-close-btn');
+    const policyTitle = document.getElementById('modal-title');
+    const policyContent = document.getElementById('modal-body');
 
     const policies = {
         terms: {
             title: '이용약관',
-            content: `
-                <h3>제1조 (목적)</h3>
-                <p>본 약관은 Funny LOTTO(이하 "서비스")가 제공하는 로또 번호 생성 및 확률 분석 서비스의 이용과 관련하여, 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
-                <h3>제2조 (서비스의 성격)</h3>
-                <p>본 서비스에서 제공하는 모든 통계 데이터, 번호 및 분석 결과는 참고용이며, 실제 로또 당첨을 보장하지 않습니다. 사용자는 본 서비스를 오락 및 재미 목적으로만 사용하여야 합니다.</p>
-                <h3>제3조 (책임의 한계)</h3>
-                <p>서비스 이용으로 인해 발생한 금전적 손실이나 기타 모든 직간접적 피해에 대해 당사는 어떠한 법적 책임도 지지 않습니다.</p>
-            `
+            content: '<h3>제1조 (목적)</h3><p>본 약관은 Yegom(이하 "회사")이 제공하는 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p><h3>제2조 (서비스의 제공)</h3><p>회사는 로또 번호 생성 및 관련 통계 서비스를 오락용으로 제공합니다. 실제 당첨을 보장하지 않습니다.</p><h3>제3조 (책임의 한계)</h3><p>서비스 이용으로 인해 발생하는 어떠한 직간접적인 손해에 대해서도 회사는 책임을 지지 않습니다.</p>'
         },
         privacy: {
             title: '개인정보처리방침',
-            content: `
-                <h3>제1조 (개인정보의 수집)</h3>
-                <p>Funny LOTTO는 오락용 시뮬레이션 서비스로, 사용자의 서비스 이용 기록 및 프리미엄 통계 엔진 활성화 여부만 브라우저의 로컬 스토리지에 저장합니다. 민감한 개인정보(이름, 연락처 등)는 수집하지 않습니다.</p>
-                <h3>제2조 (개인정보의 이용 목적)</h3>
-                <p>수집된 최소한의 데이터는 서비스 품질 향상 및 에러 분석을 위해서만 사용됩니다.</p>
-                <h3>제3조 (동의 및 철회)</h3>
-                <p>사용자는 브라우저의 로컬 스토리지 또는 쿠키를 삭제함으로써 언제든지 정보 제공 동의를 철회할 수 있습니다.</p>
-            `
+            content: '<h3>제1조 (개인정보의 수집)</h3><p>본 서비스는 사용자의 식별 가능한 민감 개인정보(이름, 연락처 등)를 수집하지 않습니다. 최소한의 서비스 품질 향상을 위해 쿠키 또는 로컬 스토리지를 활용할 수 있습니다.</p><h3>제2조 (이용 목적)</h3><p>수집된 최소한의 데이터는 서비스 개선 및 에러 분석 등의 목적으로만 활용됩니다.</p>'
         },
-        disclaimer: {
-            title: '법적 고지',
-            content: `
-                <h3>면책 조항 (Disclaimer)</h3>
-                <p>본 사이트(Funny LOTTO)는 로또 당첨을 보장하지 않으며, 사이트 내 모든 기능과 데이터는 흥미와 통계적 호기심을 충족시키기 위한 용도로 제작되었습니다.</p>
-                <ul>
-                    <li>당사는 제공되는 정보의 정확성이나 신뢰성에 대해 명시적이 거나 묵시적인 어떠한 보증도 하지 않습니다.</li>
-                    <li>모든 투자의 책임은 사용자 본인에게 있으며, 과도한 복권 구매는 재정적 문제를 일으킬 수 있습니다.</li>
-                    <li>건전한 레저 문화로서 복권을 즐기시길 권장합니다.</li>
-                </ul>
-            `
+        refund: {
+            title: '환불 및 취소 정책',
+            content: '<h3>제1조 (환불 불가 원칙)</h3><p>본 서비스는 현재 무료로 제공되며, 향후 유료 결제가 포함된 프리미엄 기능의 경우 결제 후 즉시 서비스가 제공되므로 원칙적으로 환불이 불가합니다.</p><h3>제2조 (예외 사항)</h3><p>단, 시스템 오류 등으로 인해 결제되었으나 서비스를 이용하지 못한 것이 명백히 입증된 경우, 7일 이내에 고객센터(yegomne@gmail.com)로 문의 시 환불 처리가 가능합니다.</p>'
         }
     };
 
-    policyLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const policyType = link.getAttribute('data-policy');
-            if (policies[policyType]) {
-                policyTitle.innerHTML = policies[policyType].title;
-                policyContent.innerHTML = policies[policyType].content;
-                policyOverlay.classList.add('active');
-                SoundManager.play('click');
-            }
-        });
-    });
+    function openPolicyModal(e, type) {
+        e.preventDefault();
+        if (policies[type]) {
+            policyTitle.innerHTML = policies[type].title;
+            policyContent.innerHTML = policies[type].content;
+            policyModal.classList.remove('hidden');
+            policyModal.classList.add('active'); // CSS transition
+            if (typeof SoundManager !== 'undefined') SoundManager.play('click');
+        }
+    }
+
+    if (linkTerms) linkTerms.addEventListener('click', (e) => openPolicyModal(e, 'terms'));
+    if (linkPrivacy) linkPrivacy.addEventListener('click', (e) => openPolicyModal(e, 'privacy'));
+    if (linkRefund) linkRefund.addEventListener('click', (e) => openPolicyModal(e, 'refund'));
 
     if (policyCloseBtn) {
         policyCloseBtn.addEventListener('click', () => {
-            policyOverlay.classList.remove('active');
-            SoundManager.play('click');
+            policyModal.classList.remove('active');
+            policyModal.classList.add('hidden');
+            if (typeof SoundManager !== 'undefined') SoundManager.play('click');
         });
     }
 
-    if (policyOverlay) {
-        policyOverlay.addEventListener('click', (e) => {
-            if (e.target === policyOverlay) {
-                policyOverlay.classList.remove('active');
-                SoundManager.play('click');
+    if (policyModal) {
+        policyModal.addEventListener('click', (e) => {
+            if (e.target === policyModal) {
+                policyModal.classList.remove('active');
+                policyModal.classList.add('hidden');
+                if (typeof SoundManager !== 'undefined') SoundManager.play('click');
             }
         });
     }
-
 });
