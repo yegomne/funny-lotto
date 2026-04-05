@@ -1229,23 +1229,25 @@ nav {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
-    overflow: hidden;
+    /* Removed overflow: hidden; to prevent tooltip clipping */
 }
 
+/* Re-implement shine without overflowing pseudo-elements */
 .premium-toggle-wrapper::before {
     content: '';
     position: absolute;
-    top: 0; left: -100%;
-    width: 50%; height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.1), transparent);
-    transform: skewX(-25deg);
-    animation: shine 6s infinite;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 16px; /* Match parent border-radius */
+    background: linear-gradient(115deg, transparent 0%, transparent 35%, rgba(255, 215, 0, 0.12) 50%, transparent 65%, transparent 100%);
+    background-size: 250% 100%;
+    animation: shine-bg 6s infinite linear;
+    pointer-events: none; /* Don't block interactions */
 }
 
-@keyframes shine {
-    0% { left: -100%; }
-    20% { left: 200%; }
-    100% { left: 200%; }
+@keyframes shine-bg {
+    0% { background-position: 150% 0; }
+    30% { background-position: -50% 0; }
+    100% { background-position: -50% 0; }
 }
 
 .premium-toggle-wrapper.active {
